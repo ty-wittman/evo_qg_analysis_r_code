@@ -1,5 +1,7 @@
 
-### script load in all functions#####
+### functions written for analysis of genetic variance-covariance matricis including sex specific G matricies and those which include a between sex component, G with B. 
+
+## computes the size of the genetic variance-covariance matrix
 matsize = function(X){
   E = eigen(X)
   ev = E$values
@@ -7,6 +9,7 @@ matsize = function(X){
   return(sev=sev)
 }
 
+### return the index of the sum of the eigen values of two matrices you are comparing
 eigindex = function(X,Y){
   e1 = sum(eigen(X)$values)
   e2  = sum(eigen(Y)$values)
@@ -14,6 +17,7 @@ eigindex = function(X,Y){
   return(ern)
 }
 
+## returns the difference in the sum of the eigen values of matrices you are comparing
 eigdif = function(X,Y){
   e1 = sum(eigen(X)$values)
   e2  = sum(eigen(Y)$values)
@@ -21,6 +25,7 @@ eigdif = function(X,Y){
   return(ed)
 }
 
+## computes random skewers analysis (Chevrud 1996) with random skewers drawn from a uniform distribution, provides more detailed output than RS_unif_quick. Put in two matrices you want to compare and the number of skewers. Can easily be vectorized to create a sampling distribuiton. 
 
 RS_unif_full = function(X,Y,nsim){
   m = nrow(X)
@@ -44,6 +49,7 @@ RS_unif_full = function(X,Y,nsim){
 }
 
 
+## quick version with only the mean vector correlation as the output. 
 
 RS_unif_quick = function(X,Y,nsim){
   m = nrow(X)
@@ -61,6 +67,7 @@ RS_unif_quick = function(X,Y,nsim){
   return(mvc=mvc)
 }
 
+### compute the ratio of the magnitude of response to random skewers, can be used as a measure of the relative size of the matrices being compared. 
 
 RS_unif_magnitude_ratio = function(X,Y,nsim){
   m = nrow(X)
@@ -76,6 +83,8 @@ RS_unif_magnitude_ratio = function(X,Y,nsim){
  meanrat = mean(r2n/r1n)
   return(meanrat)
 }
+
+### compute an index of the magnitude of response to random skewers, can be used as a measure of the relative size of the matrices being compared. 
 
 
 RS_unif_mag_index = function(X,Y,nsim){
@@ -95,6 +104,7 @@ RS_unif_mag_index = function(X,Y,nsim){
 }
 
 
+### Random skewers analysis but with skewers standardized to have the same selection intensity for both matrices, need to provide vectors of the phenotypic standard deviations for each trait for each matrix.
 
 
 RS_std_intensity = function(X,Y,sdx,sdy,nsim){
@@ -115,6 +125,7 @@ RS_std_intensity = function(X,Y,sdx,sdy,nsim){
   
 }
 
+###  Same as above but also standardized response in terms of change in standard deviations of the mean
 
 RS_std_intensity_and_response = function(X,Y,sdx,sdy,nsim){
   m = nrow(X)
@@ -135,6 +146,9 @@ RS_std_intensity_and_response = function(X,Y,sdx,sdy,nsim){
   return(mvc = mvc)
   
 }
+
+###  Random skewers are now treated as selectiton differentials and the phenotypic variance-covariance matrix is used to bend them into selection gradients. 
+
 
 
 RS_std_intensity_gradients_from_P = function(X,Y,px,py,nsim){
@@ -161,6 +175,9 @@ RS_std_intensity_gradients_from_P = function(X,Y,px,py,nsim){
   return(mvc=mvc)
 }
 
+###  Same as above but response is standardized in terms of standard deviations
+
+
 RS_std_intensity_and_response_gradients_from_P = function(X,Y,px,py,nsim){
   m = nrow(X)
   sdpx = sqrt(diag(px))
@@ -185,80 +202,19 @@ RS_std_intensity_and_response_gradients_from_P = function(X,Y,px,py,nsim){
   return(mvc=mvc)
 }
 
-
+### function for the correlation between two vectors
 
 VecCor = function(X,Y){
   return(rowMeans(X*Y)/sqrt(rowMeans(X^2)*rowMeans(Y^2)))
 }
 
-selection_skewers = function(X,Y,px,py,nsim){
-  m = nrow(X)
-  sdpx = sqrt(diag(px))
-  sdpy = sqrt(diag(py))
-  ipy = inv(py)
-  ipx = inv(px)
-  S <- array(runif(nsim * m * m, min = -1, max = 1), dim=c(nsim, m,m))
-  n = array(apply(S,3,function(S) sqrt(rowSums(S^2))),dim=c(nsim,1,m))
-  for(i in 1:m){
-    S[,i,i] = abs(S[,i,i])+0.2
-  }
-  for(i in 1:m){
-    S[,,i]=S[,,i]/n[,,i]
-  }
-  Sx =  aperm(apply(S,c(1,3),"*",sdpx),c(2,1,3))
-  Sxs = aperm(apply(Sx,c(1,3),"%*%",ipx),c(2,1,3))
-  
-  Sy =  aperm(apply(S,c(1,3),"*",sdpy),c(2,1,3))
-  Sys = aperm(apply(Sy,c(1,3),"%*%",ipy),c(2,1,3))
-  
-  R1 = aperm(apply(Sxs,c(1,3),"%*%",X),c(2,1,3))
-  R1 = aperm(apply(R1,c(1,3),"/",sdpx),c(2,1,3))
-  
-  R2 = aperm(apply(Sys,c(1,3),"%*%",Y),c(2,1,3))
-  R2 = aperm(apply(R2,c(1,3),"/",sdpy),c(2,1,3))
-  
-  vc = sapply(1:m,function(i) VecCor(R1[,,i],R2[,,i]))
-  
-  return(list(vc=vc,Sxs=Sxs,Sys=Sys,R1=R1,R2=R2))
-}
-
-
-selection_skewers_uni = function(X,Y,px,py,nsim){
-  m = nrow(X)
-  sdpx = sqrt(diag(px))
-  sdpy = sqrt(diag(py))
-  ipy = inv(py)
-  ipx = inv(px)
-  S <- array(runif(nsim * m * m, min = -1, max = 1), dim=c(nsim, m,m))
-  n = array(apply(S,3,function(S) sqrt(rowSums(S^2))),dim=c(nsim,1,m))
-  for(i in 1:m){
-    S[,i,i] = abs(S[,i,i])+0.2
-    for (j in 1:m){
-      if (j != i){
-        S[,j,i] = S[,j,i]*0.5
-      }
-    }
-  }
-  for(i in 1:m){
-    S[,,i]=S[,,i]/n[,,i]
-  }
-  Sx =  aperm(apply(S,c(1,3),"*",sdpx),c(2,1,3))
-  Sxs = aperm(apply(Sx,c(1,3),"%*%",ipx),c(2,1,3))
-  
-  Sy =  aperm(apply(S,c(1,3),"*",sdpy),c(2,1,3))
-  Sys = aperm(apply(Sy,c(1,3),"%*%",ipy),c(2,1,3))
-  
-  R1 = aperm(apply(Sxs,c(1,3),"%*%",X),c(2,1,3))
-  R1 = aperm(apply(R1,c(1,3),"/",sdpx),c(2,1,3))
-  
-  R2 = aperm(apply(Sys,c(1,3),"%*%",Y),c(2,1,3))
-  R2 = aperm(apply(R2,c(1,3),"/",sdpy),c(2,1,3))
-  vc = sapply(1:m,function(i) VecCor(R1[,,i],R2[,,i]))
-  
-  return(list(vc=vc,Sxs=Sxs,Sys=Sys,R1=R1,R2=R2))
-}
-
-
+## random skewers analysis but for G with B, creates sexually antagonistic selection skewers and calculates response for males and females using both sex specific components G, and the between sex components B.
+### So only a single matrix, which contains both male and female and between sex components, is imputed. 
+## you can control the type of selection with the type argument, there are options for both sexually antagonistic and sexually concordant selection.
+##OS, all random skewers for a shared trait are given the opposite sign, but are free to differ in magnitude
+##OS-ALL, random skewers for a shared trait are opposite in sign and the same in magnitude, as sexually antagonisitic as you can get
+##SS-DMM, same sign, double magnitude in males
+##SS-DMF, same sign, double magnitude in females
 
 
 SAskewer = function(X,nsim,type){
@@ -323,6 +279,8 @@ SAskewer = function(X,nsim,type){
   return(list(S = S,vcd = vectorcordist,mvc = meanvectorcor,r=r,corbytrait = corbytrait,Rtop = Rtop,Rbot = Rbot,evodist=evodist,meanevol=meanevol))
 }
 
+
+### faster version of the above code with limited output. 
 SAskewer_quick = function(X,nsim,type){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
@@ -382,7 +340,7 @@ SAskewer_quick = function(X,nsim,type){
 }
 
 
-
+### performes the above analysis but for a single focal trait at a time in a background of random selection on the other traits in the matrix. Useful for investigating how the off-diagonal structure of the matrix can influence evolution of sexual dimorphism even when those traits are not under selection 
 sadecomp = function(X,nsim,type){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
@@ -421,6 +379,8 @@ sadecomp = function(X,nsim,type){
   trait_decomp <<- trait_decomp
   ssd <<- Sd
 }
+
+
 
 sa_decomp_uni = function(X,nsim){
   m = nrow(X)
