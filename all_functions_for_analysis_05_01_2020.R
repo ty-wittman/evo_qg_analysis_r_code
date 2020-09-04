@@ -1,7 +1,118 @@
 
-### functions written for analysis of genetic variance-covariance matricis including sex specific G matricies and those which include a between sex component, G with B. 
+### script load in all functions#####
+### ave magnitude of between sex genetic correlation
 
-## computes the size of the genetic variance-covariance matrix
+rmf = function(X,Y){
+  S = mean(diag(X[6:10,1:5])-diag(Y[6:10,1:5]))
+  return(S)
+}
+
+rmf_u = function(X,Y){
+  S = mean(diag(X[6:10,1:5]))
+  return(S)
+}
+
+T_comp = function(X,Y){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  yod = upperTriangle(Y,diag=F,byrow=T)
+  S = abs(xod-yod)
+  return(S=S)
+}
+
+#### t comp magnitude of correlations
+### mean mag
+mm = function(X){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  m = sum(abs(xod))
+  return(m)
+}
+
+
+T_comp_mag = function(X,Y){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  yod = upperTriangle(Y,diag=F,byrow=T)
+  S = abs(xod)-abs(yod)
+  return(S=S)
+}
+
+
+T_comp_b = function(X,Y){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  xld = lowerTriangle(X,diag=F,byrow=F)
+  x = c(xod,xld)
+  yod = upperTriangle(Y,diag=F,byrow=T)
+  yld = lowerTriangle(Y,diag=F,byrow=F)
+  y = c(yod,yld)
+  S = mean(abs(x-y))
+  return(S=S)
+}
+
+T_comp_b_diag = function(X,Y){
+  xod = upperTriangle(X,diag=T,byrow=T)
+  xld = lowerTriangle(X,diag=F,byrow=F)
+  x = c(xod,xld)
+  yod = upperTriangle(Y,diag=T,byrow=T)
+  yld = lowerTriangle(Y,diag=F,byrow=F)
+  y = c(yod,yld)
+  S = mean(abs(x-y))
+  return(S=S)
+}
+
+T_comp_b2 = function(X){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  xld = lowerTriangle(X,diag=F,byrow=F)
+
+  S = mean(abs(xod-xld))
+  return(S=S)
+}
+
+T_comp_b3 = function(X,Y){
+  xod = lowerTriangle(X,diag=F,byrow=F)
+  yod = lowerTriangle(Y,diag=F,byrow=F)
+  S = mean(abs(xod-yod))
+  return(S=S)
+}
+
+mant_comp = function(X,Y){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  yod = upperTriangle(Y,diag=F,byrow=T)
+  C = cor(xod,yod)
+  return(C=C)
+}
+
+mant_comp_b_u = function(X,Y){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  yod = upperTriangle(Y,diag=F,byrow=T)
+  C = cor(xod,yod)
+  return(C=C)
+}
+
+mant_comp_b_l = function(X,Y){
+  xod = lowerTriangle(X,diag=F,byrow=F)
+  yod = lowerTriangle(Y,diag=F,byrow=F)
+  C = cor(xod,yod)
+  return(C=C)
+}
+
+mant_comp_b = function(X,Y){
+  xod = upperTriangle(X,diag=T,byrow=T)
+  xld = lowerTriangle(X,diag=F,byrow=T)
+  x = c(xod,xld)
+  yod = upperTriangle(Y,diag=T,byrow=T)
+  yld = lowerTriangle(Y,diag=F,byrow=T)
+  y = c(yod,yld)
+  S = cor(x,y)
+  return(S=S)
+}
+
+
+mant_comp_b2 = function(X){
+  xod = upperTriangle(X,diag=F,byrow=T)
+  xld = lowerTriangle(X,diag=F,byrow=F)
+  S = cor(xod,xld)
+  return(S=S)
+}
+
 matsize = function(X){
   E = eigen(X)
   ev = E$values
@@ -9,7 +120,6 @@ matsize = function(X){
   return(sev=sev)
 }
 
-### return the index of the sum of the eigen values of two matrices you are comparing
 eigindex = function(X,Y){
   e1 = sum(eigen(X)$values)
   e2  = sum(eigen(Y)$values)
@@ -17,7 +127,6 @@ eigindex = function(X,Y){
   return(ern)
 }
 
-## returns the difference in the sum of the eigen values of matrices you are comparing
 eigdif = function(X,Y){
   e1 = sum(eigen(X)$values)
   e2  = sum(eigen(Y)$values)
@@ -25,7 +134,6 @@ eigdif = function(X,Y){
   return(ed)
 }
 
-## computes random skewers analysis (Chevrud 1996) with random skewers drawn from a uniform distribution, provides more detailed output than RS_unif_quick. Put in two matrices you want to compare and the number of skewers. Can easily be vectorized to create a sampling distribuiton. 
 
 RS_unif_full = function(X,Y,nsim){
   m = nrow(X)
@@ -49,12 +157,17 @@ RS_unif_full = function(X,Y,nsim){
 }
 
 
-## quick version with only the mean vector correlation as the output. 
 
-RS_unif_quick = function(X,Y,nsim){
+RS_unif_quick = function(X,Y,nsim,sim){
   m = nrow(X)
-  S <- matrix(runif(nsim * m, min = -2, max = 2), nsim, m)
+  set.seed(4324352)
+  if(sim == "norm"){
+  S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
   S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
   R1 <- matrix(rep(1,nsim*m), nsim, m)
   R2 <- matrix(rep(1,nsim*m), nsim, m)
   for (i in 1:nrow(R1)){
@@ -63,29 +176,74 @@ RS_unif_quick = function(X,Y,nsim){
   for (i in 1:nrow(R2)){
     R2[i,] = (S[i,])%*%Y
   }
-  mvc = mean(rowMeans(R1*R2)/sqrt(rowMeans(R1^2)*rowMeans(R2^2)))
+  mvc= mean(rowSums(R1*R2)/(sqrt(rowSums(R1^2))*sqrt(rowSums(R2^2))))
+
   return(mvc=mvc)
 }
 
-### compute the ratio of the magnitude of response to random skewers, can be used as a measure of the relative size of the matrices being compared. 
 
-RS_unif_magnitude_ratio = function(X,Y,nsim){
+RS_unif_magnitude_ratio = function(X,Y,nsim,sim){
   m = nrow(X)
   set.seed(4324352)
-  S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
-  S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  if(sim == "norm"){
+    S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
   
   R1 = matrix(t(apply(S,1,"%*%",X)),ncol=m,nrow=nsim)
   R2 = matrix(t(apply(S,1,"%*%",Y)),ncol=m,nrow=nsim)
   
-  r1n = apply(R1,1,Norm)
-  r2n = apply(R2,1,Norm)
- meanrat = mean(r2n/r1n)
+  r1n = rowSums(R1^2)
+  r2n = rowSums(R2^2)
+ meanrat = sqrt(mean(r2n))/sqrt(mean(r1n))
   return(meanrat)
 }
 
-### compute an index of the magnitude of response to random skewers, can be used as a measure of the relative size of the matrices being compared. 
 
+RS_unif_magnitude_sqrt = function(X,nsim,sim){
+  m = nrow(X)
+  set.seed(4324352)
+  if(sim == "norm"){
+    S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
+  
+  R1 = matrix(t(apply(S,1,"%*%",X)),ncol=m,nrow=nsim)
+
+  
+ 
+  r1n = rowSums(R1^2)
+  meanr = mean(r1n)
+
+  return(sqrt(meanr))
+}
+
+
+RS_unif_magnitude = function(X,nsim,sim){
+  m = nrow(X)
+  set.seed(4324352)
+  if(sim == "norm"){
+    S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
+  
+  R1 = matrix(t(apply(S,1,"%*%",X)),ncol=m,nrow=nsim)
+  
+  
+  
+  r1n = rowSums(R1^2)
+  meanr = mean(r1n)
+  return(meanr)
+}
 
 RS_unif_mag_index = function(X,Y,nsim){
   m = nrow(X)
@@ -103,8 +261,24 @@ RS_unif_mag_index = function(X,Y,nsim){
   return(mrn)
 }
 
+RS_m_std_beta = function(X,Y,mx,my,nsim){
+  m = nrow(X)
+  set.seed(493242)
+  S <- matrix(runif(nsim * m, min = -2, max = 2), nsim, m)
+  S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  R1 <- matrix(rep(1,nsim*m), nsim, m)
+  R2 <- matrix(rep(1,nsim*m), nsim, m)
+  for (i in 1:nrow(R1)){
+    R1[i,] = (S[i,]/mx)%*%X
+  }
+  for (i in 1:nrow(R2)){
+    R2[i,] = (S[i,]/my)%*%Y
+  }
+  mvc = mean(rowMeans(R1*R2)/sqrt(rowMeans(R1^2)*rowMeans(R2^2)))
+  return(mvc = mvc)
+  
+}
 
-### Random skewers analysis but with skewers standardized to have the same selection intensity for both matrices, need to provide vectors of the phenotypic standard deviations for each trait for each matrix.
 
 
 RS_std_intensity = function(X,Y,sdx,sdy,nsim){
@@ -125,7 +299,6 @@ RS_std_intensity = function(X,Y,sdx,sdy,nsim){
   
 }
 
-###  Same as above but also standardized response in terms of change in standard deviations of the mean
 
 RS_std_intensity_and_response = function(X,Y,sdx,sdy,nsim){
   m = nrow(X)
@@ -146,9 +319,6 @@ RS_std_intensity_and_response = function(X,Y,sdx,sdy,nsim){
   return(mvc = mvc)
   
 }
-
-###  Random skewers are now treated as selectiton differentials and the phenotypic variance-covariance matrix is used to bend them into selection gradients. 
-
 
 
 RS_std_intensity_gradients_from_P = function(X,Y,px,py,nsim){
@@ -175,9 +345,6 @@ RS_std_intensity_gradients_from_P = function(X,Y,px,py,nsim){
   return(mvc=mvc)
 }
 
-###  Same as above but response is standardized in terms of standard deviations
-
-
 RS_std_intensity_and_response_gradients_from_P = function(X,Y,px,py,nsim){
   m = nrow(X)
   sdpx = sqrt(diag(px))
@@ -202,19 +369,80 @@ RS_std_intensity_and_response_gradients_from_P = function(X,Y,px,py,nsim){
   return(mvc=mvc)
 }
 
-### function for the correlation between two vectors
+
 
 VecCor = function(X,Y){
   return(rowMeans(X*Y)/sqrt(rowMeans(X^2)*rowMeans(Y^2)))
 }
 
-## random skewers analysis but for G with B, creates sexually antagonistic selection skewers and calculates response for males and females using both sex specific components G, and the between sex components B.
-### So only a single matrix, which contains both male and female and between sex components, is imputed. 
-## you can control the type of selection with the type argument, there are options for both sexually antagonistic and sexually concordant selection.
-##OS, all random skewers for a shared trait are given the opposite sign, but are free to differ in magnitude
-##OS-ALL, random skewers for a shared trait are opposite in sign and the same in magnitude, as sexually antagonisitic as you can get
-##SS-DMM, same sign, double magnitude in males
-##SS-DMF, same sign, double magnitude in females
+selection_skewers = function(X,Y,px,py,nsim){
+  m = nrow(X)
+  sdpx = sqrt(diag(px))
+  sdpy = sqrt(diag(py))
+  ipy = inv(py)
+  ipx = inv(px)
+  S <- array(runif(nsim * m * m, min = -1, max = 1), dim=c(nsim, m,m))
+  n = array(apply(S,3,function(S) sqrt(rowSums(S^2))),dim=c(nsim,1,m))
+  for(i in 1:m){
+    S[,i,i] = abs(S[,i,i])+0.2
+  }
+  for(i in 1:m){
+    S[,,i]=S[,,i]/n[,,i]
+  }
+  Sx =  aperm(apply(S,c(1,3),"*",sdpx),c(2,1,3))
+  Sxs = aperm(apply(Sx,c(1,3),"%*%",ipx),c(2,1,3))
+  
+  Sy =  aperm(apply(S,c(1,3),"*",sdpy),c(2,1,3))
+  Sys = aperm(apply(Sy,c(1,3),"%*%",ipy),c(2,1,3))
+  
+  R1 = aperm(apply(Sxs,c(1,3),"%*%",X),c(2,1,3))
+  R1 = aperm(apply(R1,c(1,3),"/",sdpx),c(2,1,3))
+  
+  R2 = aperm(apply(Sys,c(1,3),"%*%",Y),c(2,1,3))
+  R2 = aperm(apply(R2,c(1,3),"/",sdpy),c(2,1,3))
+  
+  vc = sapply(1:m,function(i) VecCor(R1[,,i],R2[,,i]))
+  
+  return(list(vc=vc,Sxs=Sxs,Sys=Sys,R1=R1,R2=R2))
+}
+
+
+selection_skewers_uni = function(X,Y,px,py,nsim){
+  m = nrow(X)
+  sdpx = sqrt(diag(px))
+  sdpy = sqrt(diag(py))
+  ipy = inv(py)
+  ipx = inv(px)
+  S <- array(runif(nsim * m * m, min = -1, max = 1), dim=c(nsim, m,m))
+  n = array(apply(S,3,function(S) sqrt(rowSums(S^2))),dim=c(nsim,1,m))
+  for(i in 1:m){
+    S[,i,i] = abs(S[,i,i])+0.2
+    for (j in 1:m){
+      if (j != i){
+        S[,j,i] = S[,j,i]*0.5
+      }
+    }
+  }
+  for(i in 1:m){
+    S[,,i]=S[,,i]/n[,,i]
+  }
+  Sx =  aperm(apply(S,c(1,3),"*",sdpx),c(2,1,3))
+  Sxs = aperm(apply(Sx,c(1,3),"%*%",ipx),c(2,1,3))
+  
+  Sy =  aperm(apply(S,c(1,3),"*",sdpy),c(2,1,3))
+  Sys = aperm(apply(Sy,c(1,3),"%*%",ipy),c(2,1,3))
+  
+  R1 = aperm(apply(Sxs,c(1,3),"%*%",X),c(2,1,3))
+  R1 = aperm(apply(R1,c(1,3),"/",sdpx),c(2,1,3))
+  
+  R2 = aperm(apply(Sys,c(1,3),"%*%",Y),c(2,1,3))
+  R2 = aperm(apply(R2,c(1,3),"/",sdpy),c(2,1,3))
+  vc = sapply(1:m,function(i) VecCor(R1[,,i],R2[,,i]))
+  
+  return(list(vc=vc,Sxs=Sxs,Sys=Sys,R1=R1,R2=R2))
+}
+
+
 
 
 SAskewer = function(X,nsim,type){
@@ -223,8 +451,8 @@ SAskewer = function(X,nsim,type){
     stop("X should be a square matrix")
   if((nrow(X)%%2)!=0)
     stop("X should be divisable by two")
-  set.seed(493242)
-  S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+  set.seed(4604565)
+  S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
   S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
   colnames(S) = colnames(X)
   R <- matrix(rep(1,nsim*m), nsim, m)
@@ -268,27 +496,43 @@ SAskewer = function(X,nsim,type){
   for (i in 1:nrow(R)){
     R[i,] = 0.5*(S[i,])%*%X
   }
+  
   Rtop = R[,1:(nrow(X)/2)]
   Rbot = R[,((nrow(X)/2)+1):nrow(X)]
   corbytrait = colMeans(Rtop*Rbot)/sqrt(colMeans(Rtop^2)*colMeans(Rbot^2))
   r = mean(corbytrait)
+  vcdist = rowSums(Rtop*Rbot)/(sqrt(rowSums(Rtop^2))*sqrt(rowSums(Rbot^2)))
   vectorcordist = rowMeans(Rtop*Rbot)/sqrt(rowMeans(Rtop^2)*rowMeans(Rbot^2))
   meanvectorcor = mean(rowMeans(Rtop*Rbot)/(sqrt(rowMeans(Rtop^2))*sqrt(rowMeans(Rbot^2))))
   meanevol = mean(rowMeans(R*S)/(sqrt(rowMeans(R^2))*sqrt(rowMeans(S^2))))
   evodist = rowMeans(R*S)/(sqrt(rowMeans(R^2))*sqrt(rowMeans(S^2)))
-  return(list(S = S,vcd = vectorcordist,mvc = meanvectorcor,r=r,corbytrait = corbytrait,Rtop = Rtop,Rbot = Rbot,evodist=evodist,meanevol=meanevol))
+  return(list(S = S,vcd = vectorcordist,vcd2 =vcdist,mvc = meanvectorcor,r=r,corbytrait = corbytrait,Rtop = Rtop,Rbot = Rbot,evodist=evodist,meanevol=meanevol))
 }
 
 
-### faster version of the above code with limited output. 
-SAskewer_quick = function(X,nsim,type){
+
+
+
+
+
+
+
+
+SAskewer_quick = function(X,nsim,type,sim){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
     stop("X should be a square matrix")
   if((nrow(X)%%2)!=0)
     stop("X should be divisable by two")
-  S <- matrix(runif(nsim * m, min = -2, max = 2), nsim, m)
+  set.seed(641980)
+  if(sim=="norm"){
+  S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
   S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
+  
   colnames(S) = colnames(X)
   R <- matrix(rep(1,nsim*m), nsim, m)
   colnames(R) = colnames(X)
@@ -331,16 +575,258 @@ SAskewer_quick = function(X,nsim,type){
   for (i in 1:nrow(R)){
     R[i,] = 0.5*(S[i,])%*%X
   }
+
   Rtop = R[,1:(nrow(X)/2)]
   Rbot = R[,((nrow(X)/2)+1):nrow(X)]
+  vcdist = rowSums(Rtop*Rbot)/(sqrt(rowSums(Rtop^2))*sqrt(rowSums(Rbot^2)))
   vectorcordist = rowMeans(Rtop*Rbot)/sqrt(rowMeans(Rtop^2)*rowMeans(Rbot^2))
-  meanvectorcor = mean(rowMeans(Rtop*Rbot)/(sqrt(rowMeans(Rtop^2))*sqrt(rowMeans(Rbot^2))))
-
+  meanvectorcor = mean(rowSums(Rtop*Rbot)/(sqrt(rowSums(Rtop^2))*sqrt(rowSums(Rbot^2))))
+  
   return(meanvectorcor)
+  
 }
 
 
-### performes the above analysis but for a single focal trait at a time in a background of random selection on the other traits in the matrix. Useful for investigating how the off-diagonal structure of the matrix can influence evolution of sexual dimorphism even when those traits are not under selection 
+
+#### sa quick sd betas
+SAskewer_quick_sd = function(X,sd,nsim,type,sim){
+  m = nrow(X)
+  if(!all(sapply(dim(X),"==",m)))
+    stop("X should be a square matrix")
+  if((nrow(X)%%2)!=0)
+    stop("X should be divisable by two")
+  set.seed(641980)
+  if(sim=="norm"){
+    S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  } else {
+    S <- matrix(runif(nsim * m, min = -1, max = 1), nsim, m)
+    S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+  }
+  
+  colnames(S) = colnames(X)
+  R <- matrix(rep(1,nsim*m), nsim, m)
+  colnames(R) = colnames(X)
+  if(type == "OS-ALL"){
+    for (i in seq(1,5)){
+      S[,i]= ifelse(S[,1] >0 , abs(S[,i]),-abs(S[,i] ))
+    }
+    for (i in seq(1,5)){
+      S[,i+5] = ifelse(S[,i] >0 , -abs(S[,i+5]),abs(S[,i+5] ))
+    }
+  } else {
+    if(type=="OS"){
+      for (i in seq(1,5)){
+        S[,i+5]= ifelse(S[,i] >0 & S[,i+5] > 0 , -S[,i+5],S[,i+5] )
+        S[,i+5] = ifelse(S[,i] <0 & S[,i+5] <0 , -S[,i+5],S[,i+5] )
+      }
+      
+    } else {
+      if(type=="SS-DMM"){
+        for (i in seq(1,5)){
+          S[i+5,]= ifelse(S[i,] >0  , S[i,]/2,S[i+5,] )
+          S[i+5,] = ifelse(S[i,] <0 , S[i,]/2,S[i+5,] )
+        }
+        
+        
+      } else {
+        if(type =="SS-DMF"){
+          for (i in seq(1,5)){
+            S[,i+5]= ifelse(S[,i] >0  , S[,i]*2,S[,i+5] )
+            S[,i+5] = ifelse(S[,i] <0 , S[,i]*2,S[,i+5] )
+          }
+          
+        } else {
+          stop("enter type")
+        }
+      }
+      
+    }
+  }
+  for (i in 1:nrow(R)){
+    R[i,] = (0.5*(S[i,]*sd)%*%X)*sd
+  }
+  
+  Rtop = R[,1:(nrow(X)/2)]
+  Rbot = R[,((nrow(X)/2)+1):nrow(X)]
+  vcdist = rowSums(Rtop*Rbot)/(sqrt(rowSums(Rtop^2))*sqrt(rowSums(Rbot^2)))
+  vectorcordist = rowMeans(Rtop*Rbot)/sqrt(rowMeans(Rtop^2)*rowMeans(Rbot^2))
+  meanvectorcor = mean(rowSums(Rtop*Rbot)/(sqrt(rowSums(Rtop^2))*sqrt(rowSums(Rbot^2))))
+  
+  return(meanvectorcor)
+  
+}
+
+
+
+#### sa skewer quick compare 2 mats
+
+
+SAskewer_quick_compare = function(X,Y,sdx,sdy,nsim,type){
+  m = nrow(X)
+  if(!all(sapply(dim(X),"==",m)))
+    stop("X should be a square matrix")
+  if((nrow(X)%%2)!=0)
+    stop("X should be divisable by two")
+  set.seed(641980)
+  S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
+  S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
+
+  Rx <- matrix(rep(1,nsim*m), nsim, m)
+  Ry  <- matrix(rep(1,nsim*m), nsim, m)
+
+  if(type == "OS-ALL"){
+    for (i in seq(1,5)){
+      S[,i]= ifelse(S[,1] >0 , abs(S[,i]),-abs(S[,i] ))
+    }
+    for (i in seq(1,5)){
+      S[,i+5] = ifelse(S[,i] >0 , -abs(S[,i+5]),abs(S[,i+5] ))
+    }
+  } else {
+    if(type=="OS"){
+      for (i in seq(1,5)){
+        S[,i+5]= ifelse(S[,i] >0 & S[,i+5] > 0 , -S[,i+5],S[,i+5] )
+        S[,i+5] = ifelse(S[,i] <0 & S[,i+5] <0 , -S[,i+5],S[,i+5] )
+      }
+      
+    } else {
+      if(type=="SS-DMM"){
+        for (i in seq(1,5)){
+          S[i+5,]= ifelse(S[i,] >0  , S[i,]/2,S[i+5,] )
+          S[i+5,] = ifelse(S[i,] <0 , S[i,]/2,S[i+5,] )
+        }
+        
+        
+      } else {
+        if(type =="SS-DMF"){
+          for (i in seq(1,5)){
+            S[,i+5]= ifelse(S[,i] >0  , S[,i]*2,S[,i+5] )
+            S[,i+5] = ifelse(S[,i] <0 , S[,i]*2,S[,i+5] )
+          }
+          
+        } else {
+          stop("enter type")
+        }
+      }
+      
+    }
+  }
+  
+  for (i in 1:nrow(Rx)){
+    Rx[i,] = (0.5*(S[i,])%*%X)/sdx
+  }
+  for (i in 1:nrow(Ry)){
+    Ry[i,] = (0.5*(S[i,])%*%Y)/sdy
+  }
+  Rtopx = Rx[,1:(nrow(X)/2)]
+  Rbotx = Rx[,((nrow(X)/2)+1):nrow(X)]
+  Rtopy = Ry[,1:(nrow(X)/2)]
+  Rboty = Ry[,((nrow(X)/2)+1):nrow(X)]
+
+  vcdistx = rowSums(Rtopx*Rbotx)/(sqrt(rowSums(Rtopx^2))*sqrt(rowSums(Rbotx^2)))
+  vectorcordistx = rowMeans(Rtopx*Rbotx)/sqrt(rowMeans(Rtopx^2)*rowMeans(Rbotx^2))
+  meanvectorcorx = mean(rowMeans(Rtopx*Rbotx)/(sqrt(rowMeans(Rtopx^2))*sqrt(rowMeans(Rbotx^2))))
+  
+  vcdisty = rowSums(Rtopy*Rboty)/(sqrt(rowSums(Rtopy^2))*sqrt(rowSums(Rboty^2)))
+  vectorcordisty = rowMeans(Rtopy*Rboty)/sqrt(rowMeans(Rtopy^2)*rowMeans(Rboty^2))
+  meanvectorcory = mean(rowMeans(Rtopy*Rboty)/(sqrt(rowMeans(Rtopy^2))*sqrt(rowMeans(Rboty^2))))
+
+  md = meanvectorcorx-meanvectorcory
+  return(c(meanvectorcorx,meanvectorcory,md))
+  
+}
+
+#### chen and Houle selection response in antagonistic and concordant space
+AC_skewers_full = function(X,nsim){
+  m = nrow(X)
+  if(!all(sapply(dim(X),"==",m)))
+    stop("X should be a square matrix")
+  if((nrow(X)%%2)!=0)
+    stop("X should be divisable by two")
+  
+  I = diag((m/2))
+  Q = 0.5*(rbind(cbind(I,I),cbind(I,-I)))
+  Gca = Q%*%X%*%Q
+  
+  
+  S0 = matrix(rep(0,nsim*(m/2)),nsim,(m/2))
+  S <- matrix(runif(nsim * (m/2), min = -2, max = 2), nsim, (m/2))
+  S <- S/matrix(sqrt(rowSums(S^2)), nsim, (m/2))
+  Sc = cbind(S,S0)
+  Sa = cbind(S0,S)
+  
+  R <- matrix(rep(1,nsim*m), nsim, m)
+  Rc = R
+  Ra = R
+  for (i in 1:nrow(Rc)){
+    Rc[i,] = (Sc[i,])%*%Gca
+  }
+  for (i in 1:nrow(Ra)){
+    Ra[i,] = (Sa[i,])%*%Gca
+  }
+  Rcc = Rc[,1:(nrow(X)/2)]
+  Rca = Rc[,((nrow(X)/2)+1):nrow(X)]
+  Rac = Ra[,1:(nrow(X)/2)]
+  Raa = Ra[,((nrow(X)/2)+1):nrow(X)]
+  
+  return(list(Rcc = Rcc,Rca=Rca,Rac=Rac,Raa=Raa,Sa=Sa,Sc=Sc,Ra=Ra,Rc=Rc))
+}
+
+
+AC_skewers_quick = function(X,nsim){
+  m = nrow(X)
+  if(!all(sapply(dim(X),"==",m)))
+    stop("X should be a square matrix")
+  if((nrow(X)%%2)!=0)
+    stop("X should be divisable by two")
+  
+  I = diag((m/2))
+  Q = 0.5*(rbind(cbind(I,I),cbind(I,-I)))
+  Gca = Q%*%X%*%Q
+  
+  
+  S0 = matrix(rep(0,nsim*(m/2)),nsim,(m/2))
+  S <- matrix(runif(nsim * (m/2), min = -2, max = 2), nsim, (m/2))
+  S <- S/matrix(sqrt(rowSums(S^2)), nsim, (m/2))
+  Sc = cbind(S,S0)
+  Sa = cbind(S0,S)
+  
+  R <- matrix(rep(1,nsim*m), nsim, m)
+  Rc = R
+  Ra = R
+  for (i in 1:nrow(Rc)){
+    Rc[i,] = (Sc[i,])%*%Gca
+  }
+  for (i in 1:nrow(Ra)){
+    Ra[i,] = (Sa[i,])%*%Gca
+  }
+  Rcc = Rc[,1:(nrow(X)/2)]
+  Rca = Rc[,((nrow(X)/2)+1):nrow(X)]
+  Rac = Ra[,1:(nrow(X)/2)]
+  Raa = Ra[,((nrow(X)/2)+1):nrow(X)]
+  
+  m_mag_aa = mean(sqrt(rowSums(Raa^2)))
+  m_mag_ac = mean(sqrt(rowSums(Rac^2)))
+  m_mag_ca = mean(sqrt(rowSums(Rca^2)))
+  m_mag_cc = mean(sqrt(rowSums(Rcc^2)))
+  return(c(m_mag_aa=m_mag_aa,m_mag_ac=m_mag_ac,m_mag_cc=m_mag_cc,m_mag_ca=m_mag_ca))
+}
+
+
+#### measure B matrix symmetry
+B_sym = function(X){
+  m = nrow(X)
+  B = X[1:(0.5*nrow(X)),((0.5*nrow(X))+1):nrow(X)]
+  r = (sum(diag(t(t(B))%*%B)))/(norm(B,type="F")*norm(t(B),type="F"))
+  return(r=r)
+}
+Sym = function(X,Y){
+  m = nrow(X)
+  r = (sum(diag(t(X)%*%Y)))/(norm(X,type="F")*norm(Y,type="F"))
+  return(r=r)
+}
+
+
 sadecomp = function(X,nsim,type){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
@@ -379,8 +865,6 @@ sadecomp = function(X,nsim,type){
   trait_decomp <<- trait_decomp
   ssd <<- Sd
 }
-
-
 
 sa_decomp_uni = function(X,nsim){
   m = nrow(X)
