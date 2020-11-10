@@ -264,6 +264,52 @@ plyr::count(vs_std_tf<v_std_g_comp["std_tftm"])
                    
                    
 #### now for sexually antagonistic skewers.                    
+### read in phenotypic matrices estimated for G with B for two groups           
+                   
+cmcfpmat = read.csv("path to file")
+cmcfpmat = as.matrix(cmcfpmat)
+cmcfsd = sqrt(diag(cmcfpmat))
+
+cmtfpmat = read.csv("path to file")
+cmtfpmat = as.matrix(cmtfpmat)
+cmtfsd = sqrt(diag(cmtfpmat))   
+                   
+
+### read in genetic variance-covariance matrices with B estimated for two groups
+                   
+cmcfgmat = read.csv("path to file")
+cmcfgmat = as.matrix(cmcfgpmat)   
+                   
+cmtfgmat = read.csv("path to file")
+cmtfgmat = as.matrix(cmtfgpmat)               
+                   
+ 
+                   
+                   
+### standardize G with B using phenotypic variances
+                   
+                   
+vs_cmcfmat = cmcfgmat/(cmcfsd%*%t(cmcfsd))                   
+ 
+vs_cmtfmat = cmtfgmat/(cmtfsd%*%t(cmtfsd))      
+                   
+                   
+#### measure SA response for each G with B matrix
+                   
+                   
+SA_cmcf = SAskewers(vs_cmcfmat,10000)
+                   
+SA_cmtf = SAskewers(vs_cmtfmat,10000)                   
+                   
+### read in sampling distribution of each G with B
+                   
+samp_dist_cmcf = read.csv("path to file"/samp_dist_cmcf.csv)
+samp_dist_cmcf = as.matrix(samp_dist_cmcf)
+samp_dist_cmcf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))
+                   
+samp_dist_cmtf = read.csv("path to file"/samp_dist_cmtf.csv)
+samp_dist_cmtf = as.matrix(samp_dist_cmtf)
+samp_dist_cmtf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))    
                    
                    
                    
@@ -271,8 +317,34 @@ plyr::count(vs_std_tf<v_std_g_comp["std_tftm"])
                    
                    
                    
+### standardize matrices in sampling distribution
                    
+samp_dist_v_std_cmcf = array(apply(samp_dist_cmcf,3,function(x) round((x/(cmcfsd%*%t(cmcfsd))),10)),dim=c(10,10,10000))
+
+samp_dist_v_std_cmtf = array(apply(samp_dist_cmtf,3,function(x) round((x/(cmtfsd%*%t(cmtfsd))),10)),dim=c(10,10,10000))        
+                                   
+                                   
+## set up cluster                        
+cl = makeCluster(4)
+registerDoParallel(cl)
+### need to read your best estimate matrices and functions into the cluster
+clusterExport(cl, list("SAskewers"))                    
+                                   
+                                   
+##### get SAskewers estimate for each matrix in sampling distribution, create null distribution                                   
+                                   
+vs_std_cmcf=parApply(cl,samp_dist_v_std_cmcf,3,function(x) SAskewers(x,nsim=10000))                        
+                                 
+vs_std_cmtf=parApply(cl,samp_dist_v_std_cmtf,3,function(x) SAskewers(x,nsim=10000))                                    
+                                   
+                                   
+cmcf_mode =  LaplacesDemon::Mode(vs_std_cmcf)     
+low_cut_off_cmcf = quantile(vs_std_cmcf,0.95)
                    
+plyr::count(vs_std_cmcf>SA_cmtf)
+        
+                                   
+cmtf_mode =  LaplacesDemon::Mode(vs_std_cmtf)     
+low_cut_off_cmcf = quantile(vs_std_cmcf,0.05)
                    
-                   
-                   
+plyr::count(vs_std_cmtf<SA_cmcf)           
