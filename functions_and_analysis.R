@@ -55,7 +55,8 @@ rmf_d = function(X,Y){
 }
 
 ## This function performs sexually antagonistic skewers analysis.  X is the full G matrix which includes B, nsim is the number of random sexually antagonistic skewers. 
-SAskewer_quick2 = function(X,nsim){
+### not generalizable at the moment, in making the skewers sexually antagonistic the function assumes a 10x10 matrix.
+SAskewers = function(X,nsim){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
     stop("X should be a square matrix")
@@ -410,7 +411,7 @@ low_cut_off_tmtf = quantile(vs_std_tmtf,0.05)
 plyr::count(vs_std_tmtf<SA_cmcf)   
 
                      
-### test is average strength of between sex genetic correlations differ between control males and control females, control males and testosterone females,  and testosterone males and testosterone females. 
+### test if the average strength of between sex genetic correlations differ between control males and control females, control males and testosterone females,  and testosterone males and testosterone females. 
                      
                      
                      
