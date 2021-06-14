@@ -22,7 +22,6 @@ mant_comp = function(X,Y){
 
 RS = function(X,Y,nsim){
   m = nrow(X)
-  set.seed(4604565)
   S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
   S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
   R1 <- matrix(rep(1,nsim*m), nsim, m)
@@ -41,18 +40,23 @@ RS = function(X,Y,nsim){
 
 
 
-require(Rfast)
-## performs sexually antagonistic skewers analysis, can be vectorized. uses mat.mult from Rfast package. X is the symmetric matrix which includes B, nsim is the number of random sexually antagonistic skewers. 
-SAskewers = function(X,nsim){
+## performs sexually antagonistic skewers analysis.  X is the symmetric matrix which includes B, nsim is the number of random sexually antagonistic skewers. 
+SAskewer_quick2 = function(X,nsim){
   m = nrow(X)
-  set.seed(4604565)
+  if(!all(sapply(dim(X),"==",m)))
+    stop("X should be a square matrix")
+  if((nrow(X)%%2)!=0)
+    stop("X should be divisable by two")
   S <- matrix(rnorm(nsim * m, mean = 0, sd = 1), nsim, m)
   S <- S/matrix(sqrt(rowSums(S^2)), nsim, m)
   for (i in seq(1,5)){
-    S[,i+5]= ifelse(S[,i] >0 & S[,i+5] > 0 , -S[,i+5],S[,i+5] )
-    S[,i+5] = ifelse(S[,i] <0 & S[,i+5] <0 , -S[,i+5],S[,i+5] )
+        S[,i+5]= ifelse(S[,i] >0 & S[,i+5] > 0 , -S[,i+5],S[,i+5] )
+        S[,i+5] = ifelse(S[,i] <0 & S[,i+5] <0 , -S[,i+5],S[,i+5] )
+     }
+  R <- matrix(rep(1,nsim*m), nsim, m)
+  for (i in 1:nrow(R)){
+    R[i,] = 0.5*(S[i,]%*%X)
   }
-  R <- 0.5*mat.mult(S,X)
   
   Rtop = R[,1:(ncol(R)/2)]
   Rbot = R[,((ncol(R)/2)+1):ncol(R)]
@@ -61,7 +65,6 @@ SAskewers = function(X,nsim){
   return(meanvectorcor)
   
 }
-
 
 
 
@@ -102,7 +105,7 @@ library(tidyr)
 library(matrixcalc)
 library(LaplacesDemon)
 
-
+#### data is avaliable on dryat at https://doi.org/10.5061/dryad.1rn8pk0tf
 ### read in phenotypic data
 
 
