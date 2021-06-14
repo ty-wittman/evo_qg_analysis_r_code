@@ -38,9 +38,23 @@ RS = function(X,Y,nsim){
   return(mvc=mvc)
 }
 
+### function to calculate average between sex genetic correlation, can be used in conjunction with the sampling distribution of the full G matrices to calculate a sampling distribution of mean between sex genetic correlation. 
+### this is not in a generalized form, X must be a 10x10 genetic correlation matrix with the upper right and lower left 25 cells containing the between sex components.
+rmf_m = function(X){
+  S = mean(diag(X[6:10,1:5]))
+  return(S)
+}
 
+## this function calculates the average of the differences between paired between sex genetic correlations for two matricies
+### can be used to generate a sampling distribution of mean differences
+### this is not in a generalized form, X and Y must be 10x10 genetic correlation matrices with the upper right and lower left 25 cells containing the between sex components.
 
-## performs sexually antagonistic skewers analysis.  X is the symmetric matrix which includes B, nsim is the number of random sexually antagonistic skewers. 
+rmf_d = function(X,Y){
+  S = mean(diag(X[6:10,1:5])-diag(Y[6:10,1:5]))
+  return(S)
+}
+
+## This function performs sexually antagonistic skewers analysis.  X is the full G matrix which includes B, nsim is the number of random sexually antagonistic skewers. 
 SAskewer_quick2 = function(X,nsim){
   m = nrow(X)
   if(!all(sapply(dim(X),"==",m)))
@@ -108,20 +122,22 @@ library(LaplacesDemon)
 #### data is avaliable on dryat at https://doi.org/10.5061/dryad.1rn8pk0tf
 ### read in phenotypic data
 
-
-cmpmat = read.csv("path to file")
+# control males
+cmpmat = read.csv("path to file.control_male_phenotypic_matrix.csv")
 cmpmat = as.matrix(cmpmat)
 cmsd = sqrt(diag(cmpmat))
 
-cfpmat = read.csv("path to file")
+#control females
+cfpmat = read.csv("path to file.control_female_phenotypic_matrix.csv")
 cfpmat = as.matrix(cfpmat)
 cfsd = sqrt(diag(cfpmat))
 
-tmpmat = read.csv("path to file")
+#testosterone males
+tmpmat = read.csv("path to file.testosterone_male_phenotypic_matrix.csv")
 tmpmat = as.matrix(tmpmat)
 tmsd = sqrt(diag(tmpmat))
-
-tmpmat = read.csv("path to file")
+#testosterone females
+tmpmat = read.csv("path to file.testosterone_female_phenotypic_matrix.csv")
 tmpmat = as.matrix(tmpmat)
 tmsd = sqrt(diag(tmpmat))
 
