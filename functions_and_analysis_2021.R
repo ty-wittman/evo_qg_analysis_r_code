@@ -290,127 +290,174 @@ cor_tfgmat = cov2cor(tfgmat)
 
 ### convert sampling distributions from covariance to correlation
 samp_dist_cor_cm = array(apply(samp_dist_cm,3,function(x) cov2cor(x),dim=c(5,5,10000))
-                         
-                         samp_dist_cor_cf = array(apply(samp_dist_cf,3,function(x) cov2cor(x),dim=c(5,5,10000))
+                          
+samp_dist_cor_cf = array(apply(samp_dist_cf,3,function(x) cov2cor(x),dim=c(5,5,10000))
                                                   
-                                                  samp_dist_cor_tm = array(apply(samp_dist_tm,3,function(x) cov2cor(x),dim=c(5,5,10000))
+samp_dist_cor_tm = array(apply(samp_dist_tm,3,function(x) cov2cor(x),dim=c(5,5,10000))
                                                                            
-                                                                           samp_dist_cor_tf = array(apply(samp_dist_tf,3,function(x) cov2cor(x),dim=c(5,5,10000))
+samp_dist_cor_tf = array(apply(samp_dist_tf,3,function(x) cov2cor(x),dim=c(5,5,10000))
+                                                                                                    
+## now to do the t method and mantel cor comparison just take the code from the RS section and replace RS with T_comp or mant_comp
+#### the preceeding analysis on G matrices can also be done on P matrices, with RS done on phenotypic covariance matrices, and the T method and mantel correlation done using phenotypic correlation matrices. 
+## the phenotypic sampling distributions are avliable on dryad and are read in just like the sampling distributions for the G matrices. 
+                                                                                                    
+#### sexually antagonistic skewers.##########                
+### read in matrices used to standardize the full G with B matrix, this standardization matrix is the cross product of the phenotypic standard deviations       
+                                                                                                    
+cmcfsd = read.csv("path to file/control_male_control_female_cross_product_standard_deviation_for_variance_standardization.csv")
+cmcfsd = as.matrix(cmcfsd)
                                                                                                     
                                                                                                     
-                                                                                                    ## now to do the t method and mantel cor comparison just take the code from the RS section and replace RS with T_comp or mant_comp
+cmtfsd= read.csv("path to file/control_male_testosterone_female_cross_product_standard_deviation_for_variance_standardization.csv")
+cmtfsd = as.matrix(cmtfsd)
+                                                                                                    
+tmtfsd= read.csv("path to file/testosterone_male_testosterone_female_cross_product_standard_deviation_for_variance_standardization.csv")
+tmtfsd = as.matrix(cmtfsd)
                                                                                                     
                                                                                                     
-                                                                                                    #### now for sexually antagonistic skewers.                    
-                                                                                                    ### read in matrices used to standardize the full G with B matrix, this standardization matrix is the cross product of the phenotypic standard deviations       
+### read in genetic variance-covariance matrices with B estimated for two groups
+### standardized as well as unstandardized matrices are given on dryad.
                                                                                                     
-                                                                                                    cmcfsd = read.csv("path to file/control_male_control_female_cross_product_standard_deviation_for_variance_standardization.csv")
-                                                                                                    cmcfsd = as.matrix(cmcfsd)
+ cmcfgmat = read.csv("path to file/control_male_control_female_full_G_unstandardized.csv")
+cmcfgmat = as.matrix(cmcfgmat)   
                                                                                                     
+cmtfgmat = read.csv("path to file/control_male_testosterone_female_full_G_unstandardized.csv")
+cmtfgmat = as.matrix(cmtfgmat)               
                                                                                                     
-                                                                                                    cmtfsd= read.csv("path to file/control_male_testosterone_female_cross_product_standard_deviation_for_variance_standardization.csv")
-                                                                                                    cmtfsd = as.matrix(cmtfsd)
-                                                                                                    
-                                                                                                    tmtfsd= read.csv("path to file/testosterone_male_testosterone_female_cross_product_standard_deviation_for_variance_standardization.csv")
-                                                                                                    tmtfsd = as.matrix(cmtfsd)
-                                                                                                    
-                                                                                                    
-                                                                                                    ### read in genetic variance-covariance matrices with B estimated for two groups
-                                                                                                    ### standardized as well as unstandardized matrices are given on dryad.
-                                                                                                    
-                                                                                                    cmcfgmat = read.csv("path to file/control_male_control_female_full_G_unstandardized.csv")
-                                                                                                    cmcfgmat = as.matrix(cmcfgmat)   
-                                                                                                    
-                                                                                                    cmtfgmat = read.csv("path to file/control_male_testosterone_female_full_G_unstandardized.csv")
-                                                                                                    cmtfgmat = as.matrix(cmtfgmat)               
-                                                                                                    
-                                                                                                    tmtfgmat = read.csv("path to file/testosterone_male_testosterone_female_full_G_unstandardized.csv")
-                                                                                                    tmtfgmat = as.matrix(tmtfgmat)   
+tmtfgmat = read.csv("path to file/testosterone_male_testosterone_female_full_G_unstandardized.csv")
+tmtfgmat = as.matrix(tmtfgmat)   
                                                                                                     
                                                                                                     
-                                                                                                    ### standardize G with B using phenotypic variances
+  ### standardize G with B using phenotypic variances
                                                                                                     
                                                                                                     
-                                                                                                    vs_cmcfmat = cmcfgmat/cmcfsd                  
+vs_cmcfmat = cmcfgmat/cmcfsd                  
                                                                                                     
-                                                                                                    vs_cmtfmat = cmtfgmat/cmtfsd  
+vs_cmtfmat = cmtfgmat/cmtfsd  
                                                                                                     
-                                                                                                    vs_tmtfmat = tmtfgmat/tmtfsd                                 
+ vs_tmtfmat = tmtfgmat/tmtfsd                                 
                                                                                                     
-                                                                                                    #### measure SA response for each G with B matrix
-                                                                                                    
-                                                                                                    
-                                                                                                    SA_cmcf = SAskewers(vs_cmcfmat,10000)
-                                                                                                    
-                                                                                                    SA_cmtf = SAskewers(vs_cmtfmat,10000)        
-                                                                                                    
-                                                                                                    SA_tmtf = SAskewers(vs_tmtfmat,10000)                                
-                                                                                                    
-                                                                                                    ### read in sampling distribution of each G with B
-                                                                                                    
-                                                                                                    samp_dist_cmcf = read.csv("path to file/control_male_control_female_distribution_unstandardized.csv")
-                                                                                                    samp_dist_cmcf = as.matrix(samp_dist_cmcf[,2:11])
-                                                                                                    samp_dist_cmcf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))
-                                                                                                    
-                                                                                                    samp_dist_cmtf = read.csv("path to file/control_male_testosterone_female_distribution_unstandardized.csv")
-                                                                                                    samp_dist_cmtf = as.matrix(samp_dist_cmtf[,2:11])
-                                                                                                    samp_dist_cmtf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))    
+ #### measure SA response for each G with B matrix
                                                                                                     
                                                                                                     
-                                                                                                    samp_dist_tmtf = read.csv("path to file/testosterone_male_testosterone_female_distribution_unstandardized.csv")
-                                                                                                    samp_dist_tmtf = as.matrix(samp_dist_tmtf[,2:11])
-                                                                                                    samp_dist_tmtf = array(aperm(samp_dist_tmcf),dim=c(10,10,10000))                     
+ SA_cmcf = SAskewers(vs_cmcfmat,10000)
+                                                                                                    
+SA_cmtf = SAskewers(vs_cmtfmat,10000)        
+                                                                                                    
+SA_tmtf = SAskewers(vs_tmtfmat,10000)                                
+                                                                                                    
+### read in sampling distribution of each G with B
+                                                                                                    
+samp_dist_cmcf = read.csv("path to file/control_male_control_female_distribution_unstandardized.csv")
+samp_dist_cmcf = as.matrix(samp_dist_cmcf[,2:11])
+ samp_dist_cmcf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))
+                                                                                                    
+ samp_dist_cmtf = read.csv("path to file/control_male_testosterone_female_distribution_unstandardized.csv")
+ samp_dist_cmtf = as.matrix(samp_dist_cmtf[,2:11])
+samp_dist_cmtf = array(aperm(samp_dist_cmcf),dim=c(10,10,10000))    
+                                                                                                    
+                                                                                                    
+samp_dist_tmtf = read.csv("path to file/testosterone_male_testosterone_female_distribution_unstandardized.csv")
+samp_dist_tmtf = as.matrix(samp_dist_tmtf[,2:11])
+samp_dist_tmtf = array(aperm(samp_dist_tmcf),dim=c(10,10,10000))                     
                                                                                                     
                                                                                                     
                                                                                                     
                                                                                                     
-                                                                                                    ### standardize matrices in sampling distribution
+### standardize matrices in sampling distribution
                                                                                                     
-                                                                                                    samp_dist_v_std_cmcf = array(apply(samp_dist_cmcf,3,function(x) round(x/cmcfsd,10),dim=c(10,10,10000))
+ samp_dist_v_std_cmcf = array(apply(samp_dist_cmcf,3,function(x) round(x/cmcfsd,10),dim=c(10,10,10000))
                                                                                                                                  
-                                                                                                                                 samp_dist_v_std_cmtf = array(apply(samp_dist_cmtf,3,function(x) round(x/cmtfsd,10),dim=c(10,10,10000))        
+samp_dist_v_std_cmtf = array(apply(samp_dist_cmtf,3,function(x) round(x/cmtfsd,10),dim=c(10,10,10000))        
                                                                                                                                                               
-                                                                                                                                                              samp_dist_v_std_cmtf = array(apply(samp_dist_cmtf,3,function(x) round(x/cmtfsd,10),dim=c(10,10,10000))        
+samp_dist_v_std_cmtf = array(apply(samp_dist_cmtf,3,function(x) round(x/cmtfsd,10),dim=c(10,10,10000))        
                                                                                                                                                                                            
                                                                                                                                                                                            
-                                                                                                                                                                                           ## set up cluster                        
-                                                                                                                                                                                           cl = makeCluster(#number of clusters you want to use)
-                                                                                                                                                                                             registerDoParallel(cl)
-                                                                                                                                                                                             ### need to read your best estimate matrices and functions into the cluster
-                                                                                                                                                                                             clusterExport(cl, "vs_cmcfmat","vs_cmtfmat","vs_tmtfmat","SAskewers")                    
+## set up cluster                        
+cl = makeCluster(#number of clusters you want to use)
+registerDoParallel(cl)
+### need to read your best estimate matrices and functions into the cluster
+clusterExport(cl, "vs_cmcfmat","vs_cmtfmat","vs_tmtfmat","SAskewers")                    
                                                                                                                                                                                              
                                                                                                                                                                                              
-                                                                                                                                                                                             ##### get SAskewers estimate for each matrix in sampling distribution, create null distribution                                   
+ ##### get SAskewers estimate for each matrix in sampling distribution, create null distribution                                   
                                                                                                                                                                                              
-                                                                                                                                                                                             vs_std_cmcf=parApply(cl,samp_dist_v_std_cmcf,3,function(x) SAskewers(x,nsim=10000))                        
+ vs_std_cmcf=parApply(cl,samp_dist_v_std_cmcf,3,function(x) SAskewers(x,nsim=10000))                        
                                                                                                                                                                                              
-                                                                                                                                                                                             vs_std_cmtf=parApply(cl,samp_dist_v_std_cmtf,3,function(x) SAskewers(x,nsim=10000))                                    
+vs_std_cmtf=parApply(cl,samp_dist_v_std_cmtf,3,function(x) SAskewers(x,nsim=10000))                                    
                                                                                                                                                                                              
-                                                                                                                                                                                             vs_std_tmtf=parApply(cl,samp_dist_v_std_tmtf,3,function(x) SAskewers(x,nsim=10000))                     
+vs_std_tmtf=parApply(cl,samp_dist_v_std_tmtf,3,function(x) SAskewers(x,nsim=10000))                     
                                                                                                                                                                                              
-                                                                                                                                                                                             cmcf_mode =  LaplacesDemon::Mode(vs_std_cmcf)     
-                                                                                                                                                                                             low_cut_off_cmcf = quantile(vs_std_cmcf,0.95)
-                                                                                                                                                                                             ### is correlation between control male and testosterone female responses to sexually antagonistic selection significantly greater than that of control males and control females
-                                                                                                                                                                                             plyr::count(vs_std_cmcf>SA_cmtf)
-                                                                                                                                                                                             ### is correlation between testosterone male and testosterone female responses to sexually antagonistic selection significantly greater than that of control males and control females
-                                                                                                                                                                                             plyr::count(vs_std_cmcf>SA_tmtf)
-                                                                                                                                                                                             
-                                                                                                                                                                                             
-                                                                                                                                                                                             cmtf_mode =  LaplacesDemon::Mode(vs_std_cmtf)     
-                                                                                                                                                                                             low_cut_off_cmtf = quantile(vs_std_cmtf,0.05)
-                                                                                                                                                                                             ### is the correlation between control male and control female responses to sexually antagonistic selection significantly lower than that of control males and testosterone females
-                                                                                                                                                                                             
-                                                                                                                                                                                             plyr::count(vs_std_cmtf<SA_cmcf)           
+cmcf_mode =  LaplacesDemon::Mode(vs_std_cmcf)     
+low_cut_off_cmcf = quantile(vs_std_cmcf,0.95)
+ ### is correlation between control male and testosterone female responses to sexually antagonistic selection significantly greater than that of control males and control females
+plyr::count(vs_std_cmcf>SA_cmtf)
+ ### is correlation between testosterone male and testosterone female responses to sexually antagonistic selection significantly greater than that of control males and control females
+plyr::count(vs_std_cmcf>SA_tmtf)
                                                                                                                                                                                              
                                                                                                                                                                                              
+cmtf_mode =  LaplacesDemon::Mode(vs_std_cmtf)     
+low_cut_off_cmtf = quantile(vs_std_cmtf,0.05)
+### is the correlation between control male and control female responses to sexually antagonistic selection significantly lower than that of control males and testosterone females
                                                                                                                                                                                              
-                                                                                                                                                                                             cmtf_mode =  LaplacesDemon::Mode(vs_std_tmtf)     
-                                                                                                                                                                                             low_cut_off_tmtf = quantile(vs_std_tmtf,0.05)
-                                                                                                                                                                                             ### is the correlation between control male and control female responses to sexually antagonistic selection significantly lower than that of testosterone males and testosterone females
-                                                                                                                                                                                             
-                                                                                                                                                                                             plyr::count(vs_std_tmtf<SA_cmcf)   
-                                                                                                                                                                                             
-                                                                                                                                                                                             
-                                                                                                                                                                                             ### test if the average strength of between sex genetic correlations differ between control males and control females, control males and testosterone females,  and testosterone males and testosterone females. 
+plyr::count(vs_std_cmtf<SA_cmcf)           
                                                                                                                                                                                              
                                                                                                                                                                                              
+                                                                                                                                                                                             
+cmtf_mode =  LaplacesDemon::Mode(vs_std_tmtf)     
+low_cut_off_tmtf = quantile(vs_std_tmtf,0.05)
+### is the correlation between control male and control female responses to sexually antagonistic selection significantly lower than that of testosterone males and testosterone females
+                                                                                                                                                                                             
+plyr::count(vs_std_tmtf<SA_cmcf)   
+                                                                                                                                                                                             
+#### between sex genetic correlation####                                                                                                                                                                                      
+### test if the average strength of between sex genetic correlations differ between control males and control females, control males and testosterone females,  and testosterone males and testosterone females. 
+### need to convert all full G matrices to correlation matrices
+                     
+cmcf_cor = cov2cor(cmcfgmat)
+cmtf_cor = cov2cor(cmtfgmat)
+tmtf_cor = cov2cor(tmtfgmat)
+                     
+                     
+cor_samp_dist_cmcf = array(apply(samp_dist_cmcf,3,function(x) cov2cor(x),dim=c(10,10,10000))
+cor_samp_dist_cmtf = array(apply(samp_dist_cmtf,3,function(x) cov2cor(x),dim=c(10,10,10000))
+cor_samp_dist_tmtf = array(apply(samp_dist_tmtf,3,function(x) cov2cor(x),dim=c(10,10,10000))
+ 
+## get estimate of mean paired difference in Rmf for the comparisons (cmtf-cmcf), (tmtf-cmcf), (cmtf - tmtf)
+
+d_rmf_cmtf_cmcf = rmf_d(cmtf_cor,cmcf_cor)
+   
+d_rmf_tmtf_cmcf = rmf_d(tmtf_cor,cmcf_cor)
+                                 
+d_rmf_cmtf_tmtf = rmf_d(cmtf_cor,tmtf_cor)
+                                 
+                                 
+                                 
+dist_d_rmf_cmtf_cmcf = rep("NA",10000)
+for (i in 1:10000){
+  dist_d_rmf_cmtf_cmcf = rmf_d(cor_samp_dist_cmtf[,,i], cor_samp_dist_cmcf[,,i])
+  }
+
+dist_d_rmf_tmtf_cmcf= rep("NA",10000)
+  for (i in 1:10000){
+  dist_d_rmf_tmtf_cmcf = rmf_d(cor_samp_dist_tmtf[,,i], cor_samp_dist_cmcf[,,i])
+  }                               
+dist_d_rmf_cmtf_cmcf = rep("NA",10000)                                
+  for (i in 1:10000){
+  dist_d_rmf_cmtf_tmtf = rmf_d(cor_samp_dist_cmtf[,,i], cor_samp_dist_tmtf[,,i])
+  }                               
+ 
+                                 
+                                 
+### Tests for sex and treatment effects on phenotypes at 3 and 8 months of age
+qgp3 = read.csv("path to file/phenotypic_and_treatment_data_3_months.csv")
+qgp8 = read.csv("path to file/phenotypic_and_treatment_data_8_months.csv")
+                                 
+qgp3$hatch_month = months(as.Date(qgp3$Hatch_Date2,format="%m/%d/%y"))                      
+                                 
+qgp3$hatch_month = factor(qgp3$hatch_month,levels=c("August","September","October","November","December","January","February","March","April","May","June"))
+
+                                 
+                        
+
+                                 
