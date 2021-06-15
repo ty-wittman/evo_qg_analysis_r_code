@@ -452,12 +452,136 @@ dist_d_rmf_cmtf_cmcf = rep("NA",10000)
 ### Tests for sex and treatment effects on phenotypes at 3 and 8 months of age
 qgp3 = read.csv("path to file/phenotypic_and_treatment_data_3_months.csv")
 qgp8 = read.csv("path to file/phenotypic_and_treatment_data_8_months.csv")
-                                 
+### 3 months###                                 
 qgp3$hatch_month = months(as.Date(qgp3$Hatch_Date2,format="%m/%d/%y"))                      
                                  
 qgp3$hatch_month = factor(qgp3$hatch_month,levels=c("August","September","October","November","December","January","February","March","April","May","June"))
 
+### 3 months, sex and treatment effects
+### log svl
+lme1 = lmer(log(SVL_3_months)~Sex + Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp3)
+Anova(lme1)
+## log dewlap area                           
+lme2 = lmer(log(DewlapArea_3_months)~Sex*log(SVL_3_months) + Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp3)
+Anova(lme2)                 
+### dewlap hue
+lme3 = lmer(dewlap_center_hue_3_months~Sex + Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp3)
+Anova(lme3)                                 
+## dewlap saturation
+lme4 = lmer(dewlap_center_saturation_3_months~Sex + Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp3)
+Anova(lme4)
+## dewlap brightness
+lme5 = lmer(dewlap_center_brightness_3_months~Sex*log(SVL_3_months) + Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp3)
+Anova(lme5)
                                  
-                        
+### 8 months, sex and treatment effects
+qgp8$hatch_month = months(as.Date(qgp8$Hatch_Date2,format="%m/%d/%y"))                      
+                                 
+qgp8$hatch_month = factor(qgp8$hatch_month,levels=c("August","September","October","November","December","January","February","March","April","May","June"))
 
+### log svl
+lme1. = lmer(log(SVL_8_months)~Sex * Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8)
+Anova(lme1.)
+## log dewlap area                           
+lme2. = lmer(log(DewlapArea_8_months)~Sex * Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8)
+Anova(lme2.)                 
+### dewlap hue
+lme3. = lmer(dewlap_center_hue_8_months~Sex * Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8)
+Anova(lme3.)                                 
+## dewlap saturation
+lme4. = lmer(dewlap_center_saturation_8_months~Sex * Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8)
+Anova(lme4.)
+## dewlap brightness
+lme5. = lmer(dewlap_center_brightness_8_months~Sex* Treatment+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8)
+Anova(lme5.)                               
                                  
+                                 
+#### 8 months sex differences within each treatments
+### blank                                 
+qg8b = subset(qgp8, Treatment=="BLANK")
+## log svl                                 
+lme1.b = lmer(log(SVL_8_months)~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8b)
+Anova(lme1.b)
+## log dewlap area                           
+lme2.b = lmer(log(DewlapArea_8_months)~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8b)
+Anova(lme2.b)                 
+### dewlap hue
+lme3.b = lmer(dewlap_center_hue_8_months~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8b)
+Anova(lme3.b)                                 
+## dewlap saturation
+lme4.b = lmer(dewlap_center_saturation_8_months~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8b)
+Anova(lme4.b)
+## dewlap brightness
+lme5.b = lmer(dewlap_center_brightness_8_months~Sex+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8b)
+Anova(lme5.b) 
+ 
+ ### testosterone                                
+qg8t = subset(qgp8, Treatment=="TEST")
+## log svl                                 
+lme1.t = lmer(log(SVL_8_months)~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8t)
+Anova(lme1.t)
+## log dewlap area                           
+lme2.t = lmer(log(DewlapArea_8_months)~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8t)
+Anova(lme2.t)                 
+### dewlap hue
+lme3.t = lmer(dewlap_center_hue_8_months~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8t)
+Anova(lme3.t)                                 
+## dewlap saturation
+lme4.t = lmer(dewlap_center_saturation_8_months~Sex +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8t)
+Anova(lme4.t)
+## dewlap brightness
+lme5.t = lmer(dewlap_center_brightness_8_months~Sex+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8t)
+Anova(lme5.t)                                
+   
+                                 
+                                 
+### treatment effects within each sex
+### female                                 
+qg8f = subset(qgp8, Sex=="F")
+## log svl                                 
+lme1.f = lmer(log(SVL_8_months)~Treatment +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8f)
+Anova(lme1.f)
+## log dewlap area                           
+lme2.f = lmer(log(DewlapArea_8_months)~Treatment * log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8f)
+Anova(lme2.f)                 
+### dewlap hue
+lme3.f = lmer(dewlap_center_hue_8_months~Treatment * log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8f)
+Anova(lme3.f)                                 
+## dewlap saturation
+lme4.f = lmer(dewlap_center_saturation_8_months~Treatment* log(SVL_8_months) +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8f)
+Anova(lme4.f)
+## dewlap brightness
+lme5.f = lmer(dewlap_center_brightness_8_months~Treatment* log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8f)
+Anova(lme5.f)
+ 
+### male
+qg8m = subset(qgp8, Sex=="M")
+## log svl                                   
+ lme1.m = lmer(log(SVL_8_months)~Treatment +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8m)
+Anova(lme1.m)
+## log dewlap area                           
+lme2.m = lmer(log(DewlapArea_8_months)~Treatment * log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8m)
+Anova(lme2.m)                 
+### dewlap hue
+lme3.m = lmer(dewlap_center_hue_8_months~Treatment * log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8m)
+Anova(lme3.m)                                 
+## dewlap saturation
+lme4.m = lmer(dewlap_center_saturation_8_months~Treatment* log(SVL_8_months) +(1|hatch_month)+(1|sire)+(1|dam),data=qgp8m)
+Anova(lme4.m)
+## dewlap brightness
+lme5.m = lmer(dewlap_center_brightness_8_months~Treatment* log(SVL_8_months)+(1|hatch_month)+(1|sire)+(1|dam),data=qgp8m)
+Anova(lme5.m)                                
+                                 
+#### PCA analysis phenotypes
+qgp8$logsvl = log(qgp8$SVL_8_months)
+qgp8$logda = log(qgp8$DewlapArea_8_months)
+pc = prcomp(qgp8[,c("logsvl","logda","dewlap_center_hue_8_months","dewlap_center_saturation_8_months","dewlap_center_brightness_8_months")],scale=T)
+                                 
+qgp8$pc1 = pc$x[,1]                                 
+qgp8$pc2 = pc$x[,2]                                 
+                                 
+lm1 = lm(pc1~Sex*Treatment,data=qgp8)
+anova(lm1)
+                                 
+lm2 = lm(pc2~Sex*Treatment,data=qgp8)
+anova(lm2)                       
